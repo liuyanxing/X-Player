@@ -1,22 +1,26 @@
 class Audio {
     constructor() {
-        this.audio = null
+        this.audioElement = null
     }
     bindAudio(audioElement) {
-        this.audio = audioElement
+        this.audioElement = audioElement
     }
     play() {
-        this.audio.play()
+        if (!this.audioElement) return
+        this.audioElement.play()
     }
     pause() {
-        this.audio.pause
+        this.audioElement.pause()
     }
     playpause() {
-      if (this.audio.playing) {
+      if (this.audioElement.playing) {
           this.pause()
       } else {
           this.play()
       }
+    }
+    isPlaying() {
+        return !this.audioElement.paused
     }
 }
 export default new Audio() 

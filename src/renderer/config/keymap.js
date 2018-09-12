@@ -9,7 +9,7 @@ const LOWER_H = 72
 const LEFT_ARROW = 37
 const RIGHT_ARROW = 39
 const keymap = {
-  [SPACE]: player.playpause(),
-  [LOWER_H]: player.toggleSubtitle()
+  [SPACE]: player.playpause,
+  [LOWER_H]: player.toggleSubtitle
 }
 export default keymap

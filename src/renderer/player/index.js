@@ -4,36 +4,38 @@ class Player {
   constructor(video, audio) {
     this.video = video;
     this.audio = audio;
+    console.log(this.audio);
   }
-  bindVideoAudio(videoElement, audioElement) {
+  bindVideoAudio = (videoElement, audioElement) => {
     this.video.bindVideo(videoElement);
     this.audio.bindAudio(audioElement);
   }
-  setVideoSource(url) {
+  setVideoSource = (url) => {
     this.video.setSource(url);
   }
-  setSubtitle(subtitle) {
+  setSubtitle = (subtitle) => {
     this.video.setSubtitle(subtitle);
   }
-  toggleSubtitle() {
+  toggleSubtitle = () => {
     this.video.toggleSubtitle();
   }
-  play() {
+  play = () => {
     this.video.play();
     this.audio.play();
   }
-  pause() {
-    this.video.play();
+  pause = () => {
+    this.video.pause();
     this.audio.pause();
   }
-  playpause() {
-    if (this.audio.playing) {
+  playpause = () => {
+    console.log(this.audio.isPlaying());
+    if (this.audio.isPlaying()) {
       this.pause();
     } else {
       this.play();
     }
   }
 }
-
+console.log('player init');
 const player = new Player(video, audio);
 export default player;

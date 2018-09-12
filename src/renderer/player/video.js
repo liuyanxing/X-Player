@@ -4,13 +4,16 @@ class Video {
     this.videoElement = null;
   }
   bindVideo(videoElement) {
-    this.initVideo(videoElement);
+    this.videoElement = videoElement
+    this.initVideo()
   }
   play() {
+    if (!this.videoElement) throw new Error('no elemet bind')
     this.videoElement.play();
   }
   pause() {
-    this.videoElement.pause;
+    if (!this.videoElement) throw new Error('no elemet bind')
+    this.videoElement.pause();
   }
   playpause() {
     if (this.videoElement.playing) {
@@ -20,7 +23,6 @@ class Video {
     }
   }
   initVideo(videoElement) {
-    this.videoElement = videoElement;
     this.setAttribute("autoplay", true);
     this.addTextTrack('subtitles', 'zh', 'zh')
     this.addTextTrack('subtitles', 'en', 'en')
@@ -51,7 +53,10 @@ class Video {
   getWhetherTextTrackShowing(textTrack) {
     return textTrack.mode === 'showing'
   }
-  toggleSubtitle(textTracks) {
+  toggleSubtitle(textTracks = this.videoElement.textTracks) {
+    console.log('toggle subtile', textTracks);
+    if (!textTracks) return
+    console.log('has subtitle');
     Array.from(textTracks).forEach(textTrack => {
       if(this.getWhetherTextTrackShowing(textTrack)) {
         this.hideTextTrack(textTrack)

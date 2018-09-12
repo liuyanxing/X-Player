@@ -12,7 +12,6 @@ import player from "../player";
 import ControlPane from "../components/player/ControlPane"
 import util from "../../util"
 import { parseSubtitle } from "../lib";
-import { throws } from 'assert';
 import { keymap } from '../config'
 
 const SURPPORTED_VIDEO_FORMATE = ['mp4', 'ogg', 'mkv']
@@ -26,34 +25,38 @@ export default {
       }
     }
   },
-  components: { ControlPane },
   mounted() {
     player.bindVideoAudio(this.$refs.video, this.$refs.audio)
-    this.bindDragEvent()
+    this.bindDragOpenFile()
+    this.bindKeymap(keymap)
   },
   methods: {
     bindKeymap(keymap) {
       document.addEventListener('keyup', e => {
+        console.log(e.keyCode);
         keymap[e.keyCode]()
       })
     },
-    bindDragEvent() {
+    bindDragOpenFile() {
       document.ondragover = document.ondrop = e => e.preventDefault()
       document.body.ondrop = e => this.handleDropOpenFile(e)
     },
     handleDropOpenFile(e) {
       e.preventDefault()
-      let dragOpenFiles = e.dataTransfer.files
-      if(dragOpenFiles.length > 2) {
+      this.handleFiles(e.dataTransfer.files)
+    },
+    handleFiles(files) {
+      if(files.length > 2) {
         return
       }
-      Array.from(dragOpenFiles).forEach(file => {
+      Array.from(files).forEach(file => {
         if(this.checkVideoSupported(file)) {
           this.files.video = {
             origin: file,
             url: util.getUrlFromFile(file)
           }
           player.setVideoSource(util.getUrlFromFile(file))
+          this.sendToIpcMain('got-video', file.path)
         }
         if(this.checkSubtitleSupported(file)) {
           util.getTextFromFile(file).then(res => {
@@ -76,6 +79,9 @@ export default {
     checkSubtitleSupported(file) {
       let fileType = util.getFileType(file.name)
       return SURPPORTED_SUBTITLE_FORMATE.includes(fileType)
+    },
+    sendToIpcMain(message, arg) {
+      ipcRenderer.send(message, arg)
     }
   }
 };
