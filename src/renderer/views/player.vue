@@ -113,6 +113,16 @@ video {
   height: 100%;
   background-color: black;
 }
+.loading-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  margin-top: 40vh;
+}
 #waveform {
   position: absolute;
   bottom: 60px;

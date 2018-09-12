@@ -27,6 +27,7 @@ class MainAudio {
   convert(savePath) {
     return new Promise((resolve, reject) => {
       childPorcessExec(
+        //ffempg -i inputeFile -ss 00:00:00.000 -t 00:00:00 -ab 64k
         `${ffempg} -i ${this.getVideoFilePath()} -ab 64k ${savePath}`,
         (err, stdout, stderr) => {
           resolve();
