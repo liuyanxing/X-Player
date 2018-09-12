@@ -23,7 +23,8 @@ class Video {
     }
   }
   initVideo(videoElement) {
-    this.setAttribute("autoplay", true);
+    this.videoElement = videoElement;
+    this.setAttribute("autoplay", false);
     this.addTextTrack('subtitles', 'zh', 'zh')
     this.addTextTrack('subtitles', 'en', 'en')
   }

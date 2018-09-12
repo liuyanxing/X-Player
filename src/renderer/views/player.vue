@@ -3,6 +3,9 @@
     <video ref="video"></video>
     <audio ref="audio"></audio>
     <!-- <control-pane></control-pane> -->
+    <div v-if="loading" class="loading-container">
+      <loading></loading>
+    </div>
   </main>
 </template>
 
@@ -13,7 +16,7 @@ import ControlPane from "../components/player/ControlPane"
 import util from "../../util"
 import { parseSubtitle } from "../lib";
 import { keymap } from '../config'
-
+import Loading from '../components/Loading'
 const SURPPORTED_VIDEO_FORMATE = ['mp4', 'ogg', 'mkv']
 const SURPPORTED_SUBTITLE_FORMATE = ['srt', 'ass']
 export default {
@@ -22,9 +25,11 @@ export default {
       files: {
         video: {origin: null, url: ''},
         subtitle: {origin: null, text: ''}
-      }
+      },
+      loading: true
     }
   },
+  components: { ControlPane, Loading},
   mounted() {
     player.bindVideoAudio(this.$refs.video, this.$refs.audio)
     this.bindDragOpenFile()
@@ -40,6 +45,15 @@ export default {
     bindDragOpenFile() {
       document.ondragover = document.ondrop = e => e.preventDefault()
       document.body.ondrop = e => this.handleDropOpenFile(e)
+    },
+    bindIpcRenderHandler() {
+      ipcRenderer.on('finish-convert', this.startPlay)
+    },
+    startPlay(event, arg) {
+      player.play()
+    },
+    setAudioUrl(event, arg) {
+      player.setAudioUrl(`../data/audio/${arg}`)
     },
     handleDropOpenFile(e) {
       e.preventDefault()
@@ -80,8 +94,11 @@ export default {
       let fileType = util.getFileType(file.name)
       return SURPPORTED_SUBTITLE_FORMATE.includes(fileType)
     },
-    sendToIpcMain(message, arg) {
-      ipcRenderer.send(message, arg)
+    closeLoading() {
+      this.loading = false
+    },
+    openLoading() {
+      this.loading = true
     }
   }
 };
