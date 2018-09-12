@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, globalShortcut } from "electron";
+import convertAudio from "./convertAudio";
 let path = require("path");
 let childPorcessExec = require("child_process").exec;
 let crypto = require("crypto");
@@ -59,36 +60,10 @@ app.on("activate", () => {
   console.log("mainwindow created");
 });
 
-ipcMain.on("get-video-source", (event, arg) => {
-  childPorcessExec(`${ffempg} -i ${arg}`, (err, stdout, stderr) => {
-    let infoReg = /Metadata:([\s\S]*)At least one output file/g;
-    let res = infoReg.exec(stderr);
-
-    let videoMetadata = res[1];
-    let videoMetadataHash = crypto
-      .createHash("md5")
-      .update(videoMetadata)
-      .digest("hex");
-    let audioName = `${videoMetadataHash}.mp3`;
-    let audioOFVideo = path.join(audioPath, `/${audioName}`);
-
-    event.sender.send("got-audio-name", audioName);
-    try {
-      fs.accessSync(audioOFVideo, fs.constants.F_OK);
-    } catch (e) {
-      childPorcessExec(
-        `${ffempg} -i ${arg} -ab 64k ${audioOFVideo}`,
-        (err, stdout, stderr) => {
-          event.sender.send("audio-format-convert-finished", audioName);
-        }
-      );
-      return;
-    }
-    event.sender.send("audio-already-exist", audioName)
-    let audioFileBuffer = fs.readFileSync(audioOFVideo)
-    let audioArrBuffer = Uint8Array.from(audioFileBuffer)
-    event.sender.send("get-audio-arraybuffer", audioArrBuffer);
-  });
+ipcMain.on("got-video", (event, arg) => {
+  convertAudio(arg).then(() => {
+    event.sender.send("audio-converted")
+  }) 
 });
 
 ipcMain.on("request-full-screen",()=>{
