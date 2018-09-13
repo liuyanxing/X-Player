@@ -26,7 +26,9 @@ export default {
         video: {origin: null, url: ''},
         subtitle: {origin: null, text: ''}
       },
-      loading: true
+      loading: true,
+      audioConverteCompletely: false,
+      convertedAudioUrl: null
     }
   },
   components: { ControlPane, Loading},
@@ -47,13 +49,26 @@ export default {
       document.body.ondrop = e => this.handleDropOpenFile(e)
     },
     bindIpcRenderHandler() {
-      ipcRenderer.on('finish-convert', this.startPlay)
+      ipcRenderer.on('finish-convert', this.startPlay.bind(this))
+      ipcRenderer.on('audio-partially-converted', this.handleAudioPartillyConverted.bind(this))
+      ipcRenderer.on('audio-completely-converted', this.handleAudioCompletelyConverted.bind(this))
     },
     startPlay(event, arg) {
       player.play()
     },
-    setAudioUrl(event, arg) {
-      player.setAudioUrl(`../data/audio/${arg}`)
+    setConvertedAudioUrl(fileName) {
+      this.convertedAudioUrl = `../data/audio/${fileName}`
+    },
+    handleAudioPartillyConverted(event, fileName) {
+      this.setConvertedAudioUrl(fileName)
+      this.setAudioUrl(this.convertedAudioUrl)
+      player.play()
+    },
+    handleAudioCompletelyConverted(event, fileName) {
+      this.audioConverteCompletely = true
+      this.setConvertedAudioUrl(fileName)
+      this.setAudioUrl(this.convertedAudioUrl)
+      player.play()
     },
     handleDropOpenFile(e) {
       e.preventDefault()

@@ -11,28 +11,32 @@ class MainAudio {
   constructor() {
     this.audioArray = null
     this.videoFilePath = null
+    this.audioSavaPath = null
+    this.convertQuality = 64
   }
   setAudio(audioArray) {
     this.audioArray = audioArray
   }
-  convertToMp3() {
+  convertToMp3({start, end, duration}) {
     if (!this.audioArray) throw new Error('no audio array')
 
     this.generateFileName()
         .then(fileName => {
-          let audioFileSavePath = path.join(AUDEIODIRECTORY, fileName)
-          return this.convert(audioFileSavePath)
+          this.setAudioSavePath(fileName)
+          return this.convert({start, end, duration})
         })
   }
-  convert(savePath) {
+  convert({start, end, duration}) {
     return new Promise((resolve, reject) => {
-      childPorcessExec(
-        //ffempg -i inputeFile -ss 00:00:00.000 -t 00:00:00 -ab 64k
-        `${ffempg} -i ${this.getVideoFilePath()} -ab 64k ${savePath}`,
-        (err, stdout, stderr) => {
-          resolve();
-        }
-      )
+      let execCommand
+      if (!end && !duration) {
+        execCommand = `${ffempg} -i ${this.getVideoFilePath()} -ab 64k ${this.audioSavaPath}`
+      } else if (!end) {
+        execCommand = `${ffempg} -i ${this.getVideoFilePath()} -ss ${start} -to ${end} -ab 64k ${this.audioSavaPath}`
+      } else {
+        execCommand = `${ffempg} -i ${this.getVideoFilePath()} -ss ${start} -t ${duration} -ab 64k ${this.audioSavaPath}`
+      }
+      childPorcessExec(execCommand, (err, stdout, stderr) => resolve())
     })
   }
   generateFileName() {
@@ -53,6 +57,9 @@ class MainAudio {
   }
   getVideoFilePath() {
     return this.audioFileName
+  }
+  setAudioSavePath(fileName) {
+    this.audioSavaPath = path.join(audioPath, fileName)
   }
 }
 

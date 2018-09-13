@@ -60,10 +60,13 @@ app.on("activate", () => {
   console.log("mainwindow created");
 });
 
-ipcMain.on("got-video", (event, arg) => {
-  convertAudio(arg).then(() => {
-    event.sender.send("audio-converted")
+ipcMain.on("got-video", (event, audioFilePath) => {
+  convertAudio(audioFilePath, 'partial').then(() => {
+    event.sender.send("audio-partially-converted")
   }) 
+  convertAudio(audioFilePath, 'all').then(() => {
+    event.sender.send("audio-completely-converted")
+  })
 });
 
 ipcMain.on("request-full-screen",()=>{
