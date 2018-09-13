@@ -49,12 +49,8 @@ export default {
       document.body.ondrop = e => this.handleDropOpenFile(e)
     },
     bindIpcRenderHandler() {
-      ipcRenderer.on('finish-convert', this.startPlay.bind(this))
       ipcRenderer.on('audio-partially-converted', this.handleAudioPartillyConverted.bind(this))
       ipcRenderer.on('audio-completely-converted', this.handleAudioCompletelyConverted.bind(this))
-    },
-    startPlay(event, arg) {
-      player.play()
     },
     setConvertedAudioUrl(fileName) {
       this.convertedAudioUrl = `../data/audio/${fileName}`
