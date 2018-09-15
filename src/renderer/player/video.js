@@ -1,49 +1,20 @@
-import { mountSubtitle } from "../lib";
-class Video {
+import { mountSubtitle } from "../lib"
+import media from "./media";
+class Video extends media{
   constructor() {
-    this.videoElement = null;
+    super()
   }
-  bindVideo(videoElement) {
-    this.videoElement = videoElement
-    this.initVideo()
-  }
-  play() {
-    if (!this.videoElement) throw new Error('no elemet bind')
-    this.videoElement.play();
-  }
-  pause() {
-    if (!this.videoElement) throw new Error('no elemet bind')
-    this.videoElement.pause();
-  }
-  playpause() {
-    if (this.videoElement.playing) {
-      this.pause();
-    } else {
-      this.play();
-    }
-  }
-  initVideo(videoElement) {
-    this.videoElement = videoElement;
-    this.setAttribute("autoplay", false);
+  init() {
+    this.removeAttribute("autoplay");
     this.addTextTrack('subtitles', 'zh', 'zh')
     this.addTextTrack('subtitles', 'en', 'en')
   }
   setSubtitle(subtitle) {
-    mountSubtitle(subtitle, this.videoElement)
+    mountSubtitle(subtitle, this.mediaElement)
     this.showTextTrack(this.getTextTrack(0))
   }
-  setSource(url) {
-    if (this.videoElement) {
-      this.setAttribute("src", url);
-    } else {
-      throw new Error("no binded videoElement element");
-    }
-  }
-  setAttribute(attr, value) {
-    this.videoElement.setAttribute(attr, value);
-  }
   addTextTrack(kind, label, language) {
-    this.videoElement.addTextTrack(kind, label, language)
+    this.mediaElement.addTextTrack(kind, label, language)
   }
   showTextTrack(textTrack) {
     textTrack.mode = 'showing'
@@ -54,7 +25,7 @@ class Video {
   getWhetherTextTrackShowing(textTrack) {
     return textTrack.mode === 'showing'
   }
-  toggleSubtitle(textTracks = this.videoElement.textTracks) {
+  toggleSubtitle(textTracks = this.mediaElement.textTracks) {
     console.log('toggle subtile', textTracks);
     if (!textTracks) return
     console.log('has subtitle');
@@ -67,7 +38,7 @@ class Video {
     })
   }
   getTextTrack(index) {
-    return this.videoElement.textTracks[index]
+    return this.mediaElement.textTracks[index]
   }
 }
 

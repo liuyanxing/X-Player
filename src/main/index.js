@@ -1,13 +1,9 @@
 import { app, BrowserWindow, ipcMain, globalShortcut } from "electron";
 import convertAudio from "./convertAudio";
+import log from './ConLogToBrowser'
 let path = require("path");
-let childPorcessExec = require("child_process").exec;
-let crypto = require("crypto");
-let fs = require("fs");
-
-let ffempg = path.join(__dirname, "../../", "/bin", "/ffmpeg.exe");
 let dataPath = path.join(__dirname, "../../", "/data");
-let audioPath = path.join(dataPath, "/audio");
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -32,6 +28,8 @@ function createWindow() {
     width: 1000,
     resizable:true,
   });
+
+  log.setWin(mainWindow)
 
   mainWindow.loadURL(winURL);
   mainWindow.setMenu(null)
@@ -61,12 +59,12 @@ app.on("activate", () => {
 });
 
 ipcMain.on("got-video", (event, audioFilePath) => {
-  convertAudio(audioFilePath, 'partial').then(() => {
-    event.sender.send("audio-partially-converted")
+  convertAudio(audioFilePath, 'partial').then((audioFileName) => {
+    event.sender.send("audio-partially-converted", audioFileName)
   }) 
-  convertAudio(audioFilePath, 'all').then(() => {
-    event.sender.send("audio-completely-converted")
-  })
+ // convertaudio(audiofilepath, 'all').then(() => {
+ //   event.sender.send("audio-completely-converted")
+ // })
 });
 
 ipcMain.on("request-full-screen",()=>{

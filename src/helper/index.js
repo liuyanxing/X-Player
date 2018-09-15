@@ -1,3 +1,4 @@
+const fs = require('fs')
 export default {
   getFileType(fileName) {
     return /\.(\w+)$/i.exec(fileName)[1]
@@ -17,5 +18,13 @@ export default {
         resolve(e.target.result)
       }
     })
+  },
+  checkFileIsExisted(path) {
+    try{
+      fs.accessSync(path, fs.F_OK);
+    }catch(e){
+      return false;
+    }
+    return true;
   }
 }

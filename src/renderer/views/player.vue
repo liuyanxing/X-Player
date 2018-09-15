@@ -13,7 +13,7 @@
 import { ipcRenderer } from "electron";
 import player from "../player";
 import ControlPane from "../components/player/ControlPane"
-import util from "../../util"
+import helper from "../../helper"
 import { parseSubtitle } from "../lib";
 import { keymap } from '../config'
 import Loading from '../components/Loading'
@@ -36,6 +36,7 @@ export default {
     player.bindVideoAudio(this.$refs.video, this.$refs.audio)
     this.bindDragOpenFile()
     this.bindKeymap(keymap)
+    this.bindIpcRenderHandler()
   },
   methods: {
     bindKeymap(keymap) {
@@ -51,13 +52,17 @@ export default {
     bindIpcRenderHandler() {
       ipcRenderer.on('audio-partially-converted', this.handleAudioPartillyConverted.bind(this))
       ipcRenderer.on('audio-completely-converted', this.handleAudioCompletelyConverted.bind(this))
+      ipcRenderer.on('log', (event, log) => {
+        console.log('main process  ', log)
+      })
     },
     setConvertedAudioUrl(fileName) {
       this.convertedAudioUrl = `../data/audio/${fileName}`
     },
     handleAudioPartillyConverted(event, fileName) {
+      console.log('audio partially convert', fileName);
       this.setConvertedAudioUrl(fileName)
-      this.setAudioUrl(this.convertedAudioUrl)
+      player.setAudioSource(this.convertedAudioUrl)
       player.play()
     },
     handleAudioCompletelyConverted(event, fileName) {
@@ -78,19 +83,19 @@ export default {
         if(this.checkVideoSupported(file)) {
           this.files.video = {
             origin: file,
-            url: util.getUrlFromFile(file)
+            url: helper.getUrlFromFile(file)
           }
-          player.setVideoSource(util.getUrlFromFile(file))
-          this.sendToIpcMain('got-video', file.path)
+          player.setVideoSource(helper.getUrlFromFile(file))
+          ipcRenderer.send("got-video", file.path);
         }
         if(this.checkSubtitleSupported(file)) {
-          util.getTextFromFile(file).then(res => {
+          helper.getTextFromFile(file).then(res => {
             console.log(res);
             this.files.subtitle = {
               origin: file,
               text: res
             }
-            player.setSubtitle(parseSubtitle(util.getFileType(file.name), res)) 
+            player.setSubtitle(parseSubtitle(helper.getFileType(file.name), res)) 
           }).catch(res => {
             throw new Error(res)
           })
@@ -98,11 +103,11 @@ export default {
      })
     },
     checkVideoSupported(file) {
-      let fileType = util.getFileType(file.name)
+      let fileType = helper.getFileType(file.name)
       return SURPPORTED_VIDEO_FORMATE.includes(fileType)
     },
     checkSubtitleSupported(file) {
-      let fileType = util.getFileType(file.name)
+      let fileType = helper.getFileType(file.name)
       return SURPPORTED_SUBTITLE_FORMATE.includes(fileType)
     },
     closeLoading() {

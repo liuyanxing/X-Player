@@ -7,11 +7,16 @@ class Player {
     console.log(this.audio);
   }
   bindVideoAudio = (videoElement, audioElement) => {
-    this.video.bindVideo(videoElement);
-    this.audio.bindAudio(audioElement);
+    this.video.bind(videoElement);
+    this.audio.bind(audioElement);
+    this.video.init()
+    this.audio.init()
   }
   setVideoSource = (url) => {
     this.video.setSource(url);
+  }
+  setAudioSource = (url) => {
+    this.audio.setSource(url);
   }
   setSubtitle = (subtitle) => {
     this.video.setSubtitle(subtitle);
@@ -28,12 +33,11 @@ class Player {
     this.audio.pause();
   }
   playpause = () => {
-    console.log(this.audio.isPlaying());
-    if (this.audio.isPlaying()) {
-      this.pause();
-    } else {
-      this.play();
-    }
+    this.video.playpause()
+    this.audio.playpause()
+  }
+  checkPaused = () => {
+    return this.video.checkPaused() && this.audio.checkPaused()
   }
 }
 console.log('player init');
