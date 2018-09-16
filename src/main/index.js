@@ -1,6 +1,7 @@
 import { app, BrowserWindow, ipcMain, globalShortcut } from "electron";
 import convertAudio from "./convertAudio";
 import log from './ConLogToBrowser'
+import helper from "../helper";
 let path = require("path");
 let dataPath = path.join(__dirname, "../../", "/data");
 

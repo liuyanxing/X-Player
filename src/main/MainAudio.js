@@ -16,6 +16,7 @@ class MainAudio {
     this.audioSavaPath = null
     this.audioFileName = null
     this.convertQuality = 64
+    this.audioFileNameSuffix = null
   }
   setAudio(audioArray) {
     this.audioArray = audioArray
@@ -23,10 +24,10 @@ class MainAudio {
   convertToMp3({start, end, duration}) {
     return this.generateFileName()
         .then(fileName => {
-          this.audioFileName = fileName
-          this.setAudioSavePath(fileName)
+          this.setAudioFileName(fileName)
+          this.setAudioSavePath(this.getAudioFileName())
           if (helper.checkFileIsExisted(this.audioSavaPath)) {
-            return new Promise(resolve => resolve(this.audioFileName))
+            return new Promise(resolve => resolve(this.getAudioFileName()))
           }
           return this.convert({start, end, duration})
         })
@@ -42,9 +43,7 @@ class MainAudio {
         execCommand = `${ffempg} -i ${this.getVideoFilePath()} -ss ${start} -t ${duration} -ab 64k ${this.audioSavaPath}`
       }
       childPorcessExec(execCommand, (err, stdout, stderr) => { 
-        resolve(this.audioFileName)
-        log.send('stderr' , stderr) 
-        log.send('stdout', stdout)
+        resolve(this.getAudioFileName())
       })
     })
   }
@@ -64,11 +63,28 @@ class MainAudio {
   setVideoFilePath(videoFilePath) {
     this.videoFilePath = videoFilePath
   }
+  getAudioFileName() {
+    if (this.audioFileNameSuffix) {
+      return this.audioFileName.replace(/\.\w+$/, ($1) => {
+        return this.audioFileNameSuffix + $1
+      })
+    }
+    return this.audioFileName
+  }
+  setAudioFileName(fileName) {
+    this.audioFileName = fileName
+  }
   getVideoFilePath() {
     return this.videoFilePath
   }
   setAudioSavePath(fileName) {
     this.audioSavaPath = path.join(audioPath, fileName)
+  }
+  setAudioFileNameSuffix(suffix) {
+    this.audioFileNameSuffix = suffix
+  }
+  destructor() {
+    this.audioFileNameSuffix = null
   }
 }
 
