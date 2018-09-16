@@ -41,7 +41,11 @@ class MainAudio {
       } else {
         execCommand = `${ffempg} -i ${this.getVideoFilePath()} -ss ${start} -t ${duration} -ab 64k ${this.audioSavaPath}`
       }
-      childPorcessExec(execCommand, (err, stdout, stderr) => resolve(this.audioFileName))
+      childPorcessExec(execCommand, (err, stdout, stderr) => { 
+        resolve(this.audioFileName)
+        log.send('stderr' , stderr) 
+        log.send('stdout', stdout)
+      })
     })
   }
   generateFileName() {

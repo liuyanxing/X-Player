@@ -37,17 +37,20 @@ export default {
     this.bindDragOpenFile()
     this.bindKeymap(keymap)
     this.bindIpcRenderHandler()
+    this.bindPlayerEventHandler()
   },
   methods: {
     bindKeymap(keymap) {
       document.addEventListener('keyup', e => {
-        console.log(e.keyCode);
         keymap[e.keyCode]()
       })
     },
     bindDragOpenFile() {
       document.ondragover = document.ondrop = e => e.preventDefault()
       document.body.ondrop = e => this.handleDropOpenFile(e)
+    },
+    bindPlayerEventHandler() {
+      player.on('ended', this.playerEndedHandler.bind(this))
     },
     bindIpcRenderHandler() {
       ipcRenderer.on('audio-partially-converted', this.handleAudioPartillyConverted.bind(this))
@@ -56,19 +59,26 @@ export default {
         console.log('main process  ', log)
       })
     },
+    playerEndedHandler(currentTime) {
+      if (this.audioConverteCompletely) return
+      this.openLoading()
+      ipcRenderer.send('convert-partially', currentTime)
+      player.pause()
+    },
     setConvertedAudioUrl(fileName) {
       this.convertedAudioUrl = `../data/audio/${fileName}`
     },
     handleAudioPartillyConverted(event, fileName) {
-      console.log('audio partially convert', fileName);
       this.setConvertedAudioUrl(fileName)
       player.setAudioSource(this.convertedAudioUrl)
+      this.closeLoading()
       player.play()
     },
     handleAudioCompletelyConverted(event, fileName) {
       this.audioConverteCompletely = true
       this.setConvertedAudioUrl(fileName)
       this.setAudioUrl(this.convertedAudioUrl)
+      this.closeLoading()
       player.play()
     },
     handleDropOpenFile(e) {

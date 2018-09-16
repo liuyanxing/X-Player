@@ -26,5 +26,8 @@ export default {
       return false;
     }
     return true;
+  },
+  addFileNameSuffix(fileName, prefix) {
+    return prefix + fileName
   }
 }

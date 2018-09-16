@@ -66,6 +66,11 @@ ipcMain.on("got-video", (event, audioFilePath) => {
  //   event.sender.send("audio-completely-converted")
  // })
 });
+ipcMain.on("convert-partially", (event, start) => {
+  convertAudio(null, 'partial').then((audioFileName) => {
+    event.sender.send("audio-partially-converted", audioFileName, start)
+  }) 
+});
 
 ipcMain.on("request-full-screen",()=>{
   if(mainWindow.isFullScreen()){

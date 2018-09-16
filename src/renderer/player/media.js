@@ -36,6 +36,12 @@ class Media{
   checkPaused() {
     return this.mediaElement.paused
   }
+  addEventLister(event, callback) {
+    this.mediaElement.addEventListener(event, callback, false)
+  }
+  getCurrentTime() {
+    return this.mediaElement.currentTime
+  }
 }
 
 export default Media 
