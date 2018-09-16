@@ -1,7 +1,6 @@
 let path = require("path");
 let childPorcessExec = require("child_process").exec;
 let crypto = require("crypto");
-let fs = require("fs");
 
 let ffempg = path.join(__dirname, "../../", "/bin", "/ffmpeg.exe");
 let dataPath = path.join(__dirname, "../../", "/data");
@@ -29,10 +28,12 @@ class MainAudio {
           if (helper.checkFileIsExisted(this.audioSavaPath)) {
             return new Promise(resolve => resolve(this.getAudioFileName()))
           }
-          return this.convert({start, end, duration})
+          let convertPromise = this.convert({start, end, duration}, this.getAudioFileName())
+          this.destructor()   //将audioFileName 重置为null
+          return convertPromise
         })
   }
-  convert({start, end, duration}) {
+  convert({start, end, duration}, audioFileName) {
     return new Promise((resolve, reject) => {
       let execCommand
       if (!end && !duration) {
@@ -43,7 +44,7 @@ class MainAudio {
         execCommand = `${ffempg} -i ${this.getVideoFilePath()} -ss ${start} -t ${duration} -ab 64k ${this.audioSavaPath}`
       }
       childPorcessExec(execCommand, (err, stdout, stderr) => { 
-        resolve(this.getAudioFileName())
+        resolve(audioFileName)
       })
     })
   }
